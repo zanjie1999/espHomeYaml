@@ -1,0 +1,92 @@
+alias: 风扇睡眠模式
+description: ''
+trigger:
+  - platform: time
+    at: '00:00:00'
+  - type: turned_on
+    platform: device
+    device_id: cf27dc5e8a769c83915d75837a9be49b
+    entity_id: binary_sensor.plug1_button
+    domain: binary_sensor
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 1
+condition:
+  - condition: and
+    conditions:
+      - condition: or
+        conditions:
+          - condition: time
+            after: '23:59:59'
+            before: '10:00:00'
+            weekday:
+              - sat
+              - sun
+          - condition: time
+            before: '6:45:00'
+            weekday:
+              - mon
+              - tue
+              - wed
+              - thu
+              - fri
+            after: '23:59:59'
+          - condition: device
+            type: is_on
+            device_id: cf27dc5e8a769c83915d75837a9be49b
+            entity_id: switch.plug1_green_led
+            domain: switch
+action:
+  - repeat:
+      until:
+        - condition: or
+          conditions:
+            - condition: time
+              after: '10:00:00'
+              weekday:
+                - sat
+                - sun
+              before: '23:59:59'
+            - condition: time
+              after: '6:45:00'
+              weekday:
+                - mon
+                - tue
+                - wed
+                - thu
+                - fri
+              before: '23:59:59'
+            - condition: device
+              type: is_on
+              device_id: cf27dc5e8a769c83915d75837a9be49b
+              entity_id: switch.plug1_green_led
+              domain: switch
+      sequence:
+        - type: turn_on
+          device_id: cf27dc5e8a769c83915d75837a9be49b
+          entity_id: switch.plug1
+          domain: switch
+        - type: turn_on
+          device_id: cf27dc5e8a769c83915d75837a9be49b
+          entity_id: switch.plug1_red_led
+          domain: switch
+        - delay: '180'
+        - type: turn_off
+          device_id: cf27dc5e8a769c83915d75837a9be49b
+          entity_id: switch.plug1
+          domain: switch
+        - type: turn_off
+          device_id: cf27dc5e8a769c83915d75837a9be49b
+          entity_id: switch.plug1_red_led
+          domain: switch
+        - delay: '600'
+  - type: turn_off
+    device_id: cf27dc5e8a769c83915d75837a9be49b
+    entity_id: switch.plug1
+    domain: switch
+  - type: turn_off
+    device_id: cf27dc5e8a769c83915d75837a9be49b
+    entity_id: switch.plug1_red_led
+    domain: switch
+mode: restart
