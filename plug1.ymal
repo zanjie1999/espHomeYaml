@@ -1,0 +1,68 @@
+esphome:
+  name: plug1
+  platform: ESP8266
+  board: esp01_1m
+
+wifi:
+  ssid: "ssid"
+  password: "pwd"
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Plug1 Fallback Hotspot"
+    password: "password"
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+# api:
+#   password: "sparkle"
+
+ota:
+  password: "sparkle"
+  
+web_server:
+  port: 80
+  
+mqtt:
+  broker: 192.168.1.1
+  username: None
+  password: None
+
+binary_sensor:
+  - platform: gpio
+    pin: 
+      number: GPIO14
+      inverted: yes
+    name: "Plug1 Button"
+    on_click:
+      then:
+        - switch.toggle: plug
+        - if:
+            condition:
+              - switch.is_on: plug
+            then:
+              - switch.turn_on: green
+            else:
+              - switch.turn_off: green
+
+switch:
+  - platform: gpio
+    pin: GPIO12
+    id: plug
+    name: "Plug1"
+
+  - platform: gpio
+    pin: GPIO13
+    id: green
+    name: "Plug1 Green Led"
+    inverted: yes
+    
+  - platform: gpio
+    pin: GPIO5
+    id: red
+    name: "Plug1 Red Led"
+    inverted: yes
