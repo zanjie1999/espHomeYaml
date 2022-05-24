@@ -1,0 +1,11 @@
+alias: 门铃触发器
+description: ''
+trigger:
+  - platform: mqtt
+    topic: doorbell/status
+    payload: online
+condition: []
+action:
+  - service: shell_command.mi_doorbell
+    data: {}
+mode: single
