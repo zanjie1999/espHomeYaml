@@ -1,0 +1,38 @@
+alias: 厕所自动换气
+description: ''
+trigger:
+  - type: humidity
+    platform: device
+    device_id: 0f59976dc8c9d6f7fab40850d16b296c
+    entity_id: sensor.toilet_humidity
+    domain: sensor
+    above: 90
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 10
+condition:
+  - condition: device
+    type: is_off
+    device_id: 0f59976dc8c9d6f7fab40850d16b296c
+    entity_id: switch.toilet_fan
+    domain: switch
+    for:
+      hours: 0
+      minutes: 3
+      seconds: 0
+action:
+  - type: turn_on
+    device_id: 0f59976dc8c9d6f7fab40850d16b296c
+    entity_id: switch.toilet_fan
+    domain: switch
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 20
+      milliseconds: 0
+  - type: turn_off
+    device_id: 0f59976dc8c9d6f7fab40850d16b296c
+    entity_id: switch.toilet_fan
+    domain: switch
+mode: single
