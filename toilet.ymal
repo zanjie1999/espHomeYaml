@@ -1,0 +1,67 @@
+esphome:
+  name: toilet
+  platform: ESP8266
+  board: esp01_1m
+  on_boot:
+    priority: -1
+    then:
+      - delay: 15min
+      - switch.turn_off: fan
+
+
+wifi:
+  fast_connect: true
+  ssid: "ssid"
+  password: "pwd"
+  manual_ip:
+    static_ip: 192.168.1.160
+    gateway: 192.168.1.1
+    subnet: 255.255.255.0
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Toilet Fallback Hotspot"
+    password: "password"
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+# api:
+#   password: "sparkle"
+
+ota:
+  safe_mode: false
+  password: "sparkle"
+  
+web_server:
+  port: 80
+  
+mqtt:
+  broker: 192.168.1.1
+  username: None
+  password: None
+
+sensor:
+  - platform: dht
+    pin: GPIO2
+    temperature:
+      name: "Toilet Temperature"
+    humidity:
+      name: "Toilet Humidity"
+    model: DHT11
+    update_interval: 10s
+  # - platform: adc
+  #   pin: VCC
+  #   name: "Toilet Power"
+    
+switch:
+  - platform: gpio
+    pin: GPIO0
+    id: fan
+    name: "Toilet Fan"
+    inverted: yes
+    restore_mode: ALWAYS_ON
+    
