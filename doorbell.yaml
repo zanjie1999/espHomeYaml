@@ -1,0 +1,61 @@
+esphome:
+  name: doorbell
+  platform: ESP8266
+  board: esp01_1m
+  on_boot:
+    priority: -1
+    then:
+      # - switch.turn_on: 
+      
+
+
+wifi:
+  fast_connect: true
+  ssid: "ssid"
+  password: "pwd"
+  # use static address to save dhcp time
+  manual_ip:
+    static_ip: 192.168.1.208
+    gateway: 192.168.1.1
+    subnet: 255.255.255.0
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Doorbell Fallback Hotspot"
+    password: "password"
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+# api:
+#   password: "sparkle"
+
+ota:
+  password: "sparkle"
+  
+web_server:
+  port: 80
+  
+mqtt:
+  broker: 192.168.1.1
+  username: None
+  password: None
+  on_message:
+  - topic: doorbell/ota_mode
+    payload: 'ON'
+    then:
+      - deep_sleep.prevent: dosleep
+
+
+deep_sleep:
+  id: dosleep
+  run_duration: 1s  
+
+sensor:
+  - platform: adc
+    pin: VCC
+    name: "Doorbell Battery"
+    
