@@ -3,11 +3,26 @@ esphome:
   platform: ESP8266
   board: esp01_1m
   on_boot:
-    priority: -1
+    priority: -100
     then:
-      # - switch.turn_on: 
-      
+      - switch.turn_off: led
+      - delay: 1s
+      - switch.turn_on: led
+      - delay: 1s
+      - switch.turn_off: led
+      - switch.turn_off: toen
 
+    
+switch:
+  - platform: gpio
+    pin: 14
+    id: toen
+    restore_mode: ALWAYS_ON
+  - platform: gpio
+    pin: 2
+    id: led
+    inverted: yes
+    restore_mode: ALWAYS_ON
 
 wifi:
   fast_connect: true
@@ -43,20 +58,19 @@ mqtt:
   broker: 192.168.1.1
   username: None
   password: None
-  on_message:
-  - topic: doorbell/ota_mode
-    payload: 'ON'
-    then:
-      - deep_sleep.prevent: dosleep
+#   on_message:
+#   - topic: doorbell/ota_mode
+#     payload: 'ON'
+#     then:
+#       - deep_sleep.prevent: dosleep
 
 
-deep_sleep:
-  id: dosleep
-  run_duration: 1s  
+# deep_sleep:
+#   id: dosleep
+#   run_duration: 10s  
 
 sensor:
   - platform: adc
     pin: VCC
     name: "Doorbell Battery"
     
- 
