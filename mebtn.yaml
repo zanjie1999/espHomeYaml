@@ -1,0 +1,145 @@
+esphome:
+  name: mebtn
+  platform: ESP8266
+  board: esp01_1m
+  on_boot:
+    priority: -100
+    then:
+      # - switch.turn_off: led
+      # - delay: 1s
+      # - switch.turn_on: led
+      
+      - delay: 1s
+      #- switch.turn_off: toen
+      # - switch.turn_off: led
+      # - binary_sensor.template.publish:
+      #     id: mebtn
+      #     state: OFF
+      - deep_sleep.enter: deep_sleep_1
+      
+  on_shutdown:
+    priority: -100
+    then:
+      - switch.turn_off: toen
+
+
+deep_sleep:
+  id: deep_sleep_1
+    
+switch:
+  - platform: gpio
+    pin: 4
+    id: toen
+    inverted: yes
+    restore_mode: ALWAYS_ON
+  - platform: gpio
+    pin: 2
+    id: led
+    inverted: yes
+    restore_mode: ALWAYS_ON
+
+
+binary_sensor:
+#   - platform: template
+#     name: "MeButton Short Clicked"
+#     id: mebtn1
+#   - platform: template
+#     name: "MeButton Double Clicked"
+#     id: mebtn2
+#   - platform: template
+#     name: "MeButton Long Clicked"
+#     id: mebtn3
+  - platform: gpio
+    pin: 
+      number: GPIO5
+      mode:
+        input: true
+        pullup: true
+    name: "MeButton"
+    id: mebtn
+#     on_multi_click:
+#     - timing:
+#       - ON for at most 1s
+#       - OFF for at most 1s
+#       - ON for at most 1s
+#       - OFF for at least 0.2s
+#       then:
+#         - binary_sensor.template.publish:
+#             id: mebtn2
+#             state: ON
+#         - binary_sensor.template.publish:
+#             id: mebtn2
+#             state: OFF
+#     - timing:
+#       - ON for 1s to 2s
+#       - OFF for at least 0.5s
+#       then:
+#         - binary_sensor.template.publish:
+#             id: mebtn3
+#             state: ON
+#         - binary_sensor.template.publish:
+#             id: mebtn3
+#             state: OFF
+#     - timing:
+#       - ON for at most 1s
+#       - OFF for at least 0.5s
+#       then:
+#         - binary_sensor.template.publish:
+#             id: mebtn1
+#             state: ON
+#         - binary_sensor.template.publish:
+#             id: mebtn1
+#             state: OFF
+
+
+wifi:
+  power_save_mode: light
+  fast_connect: true
+  ssid: "wifi"
+  password: "pwd"
+  # use static address to save dhcp time
+  manual_ip:
+    static_ip: 192.168.1.217
+    gateway: 192.168.1.1
+    subnet: 255.255.255.0
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "MeBtn Fallback Hotspot"
+    password: "password"
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+# api:
+#   password: "sparkle"
+
+ota:
+  password: "sparkle"
+  
+web_server:
+  port: 80
+  
+mqtt:
+  broker: 192.168.1.1
+  username: None
+  password: None
+#   on_message:
+#   - topic: doorbell/ota_mode
+#     payload: 'ON'
+#     then:
+#       - deep_sleep.prevent: dosleep
+
+
+# deep_sleep:
+#   id: dosleep
+#   run_duration: 10s  
+
+sensor:
+  - platform: adc
+    pin: VCC
+    name: "MeBtn Battery"
+    
