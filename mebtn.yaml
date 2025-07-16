@@ -6,7 +6,7 @@ esphome:
       # - switch.turn_off: led
       # - delay: 1s
       # - switch.turn_on: led
-      # - output.turn_off: toen_out
+      - output.turn_off: toen_out
       - while:
           condition:
             not:
