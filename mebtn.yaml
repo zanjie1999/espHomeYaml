@@ -1,42 +1,83 @@
 esphome:
   name: mebtn
-  platform: ESP8266
-  board: esp01_1m
   on_boot:
-    priority: -100
+    priority: 800
     then:
       # - switch.turn_off: led
       # - delay: 1s
       # - switch.turn_on: led
-      
+      # - output.turn_off: toen_out
+      - while:
+          condition:
+            not:
+              wifi.connected:
+          then:
+            - output.turn_on: led_out
+            - delay: 0.2s
+            - output.turn_off: led_out
+            - delay: 0.2s
+      - output.turn_off: led_out
+      - component.update: bat_voltage
+      - while:
+          condition:
+            binary_sensor.is_on: mebtn
+          then:
+            - delay: 100ms
       - delay: 1s
+      - output.turn_on: toen_out
+      - deep_sleep.enter: deep_sleep_1
+      
+      # - output.turn_off: toen_out
       #- switch.turn_off: toen
       # - switch.turn_off: led
       # - binary_sensor.template.publish:
       #     id: mebtn
       #     state: OFF
-      - deep_sleep.enter: deep_sleep_1
       
   on_shutdown:
     priority: -100
     then:
-      - switch.turn_off: toen
+      - output.turn_on: toen_out
 
+ 
+
+esp8266:
+  board: esp01_1m
 
 deep_sleep:
   id: deep_sleep_1
-    
+
+output:
+  - platform: gpio
+    pin:
+      number: GPIO4
+      mode: OUTPUT
+      inverted: false
+    id: toen_out
+  - platform: gpio
+    pin:
+      number: GPIO2
+      mode: OUTPUT
+      inverted: false
+    id: led_out
+
 switch:
-  - platform: gpio
-    pin: 4
-    id: toen
-    inverted: yes
-    restore_mode: ALWAYS_ON
-  - platform: gpio
-    pin: 2
-    id: led
-    inverted: yes
-    restore_mode: ALWAYS_ON
+  # - platform: output
+  # output: toen_out
+  # id: toen
+  # internal: false
+  # restore_mode: ALWAYS_ON
+  # - platform: gpio
+  #   pin: 4
+  #   id: toen
+  #   name: 'EN'
+  #   inverted: yes
+  #   restore_mode: ALWAYS_ON
+  # - platform: gpio
+  #   pin: 2
+  #   id: led
+  #   inverted: yes
+  #   restore_mode: ALWAYS_ON
 
 
 binary_sensor:
@@ -57,6 +98,8 @@ binary_sensor:
         pullup: true
     name: "MeButton"
     id: mebtn
+    filters:
+      - delayed_on_off: 50ms
 #     on_multi_click:
 #     - timing:
 #       - ON for at most 1s
@@ -118,7 +161,8 @@ logger:
 #   password: "sparkle"
 
 ota:
-  password: "sparkle"
+  - platform: esphome
+    password: "sparkle"
   
 web_server:
   port: 80
@@ -141,5 +185,6 @@ mqtt:
 sensor:
   - platform: adc
     pin: VCC
+    id: bat_voltage
     name: "MeBtn Battery"
     
