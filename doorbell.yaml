@@ -1,32 +1,81 @@
 esphome:
   name: doorbell
-  platform: ESP8266
-  board: esp01_1m
   on_boot:
+    priority: 800
+    then:
+      - output.turn_off: toen_out
+      - while:
+          condition:
+            not:
+              wifi.connected:
+          then:
+            - output.turn_on: led_out
+            - delay: 0.2s
+            - output.turn_off: led_out
+            - delay: 0.2s
+      - output.turn_off: led_out
+      - component.update: bat_voltage
+      - if:
+          condition:
+            binary_sensor.is_on: io0
+          then:
+            - delay: 1s
+            - output.turn_on: toen_out
+            - deep_sleep.enter: deep_sleep_1
+            # - delay: 1s
+            # - output.turn_off: toen_out
+
+  on_shutdown:
     priority: -100
     then:
-      - switch.turn_off: led
-      - delay: 1s
-      - switch.turn_on: led
-      - delay: 1s
-      - switch.turn_off: led
-      - switch.turn_off: toen
+      - output.turn_on: toen_out
 
-    
-switch:
+esp8266:
+  board: esp01_1m
+
+deep_sleep:
+  id: deep_sleep_1
+
+output:
   - platform: gpio
-    pin: 14
-    id: toen
-    restore_mode: ALWAYS_ON
+    pin:
+      number: GPIO14
+      mode: OUTPUT
+      inverted: false
+    id: toen_out
   - platform: gpio
-    pin: 2
-    id: led
-    inverted: yes
-    restore_mode: ALWAYS_ON
+    pin:
+      number: GPIO2
+      mode: OUTPUT
+      inverted: false
+    id: led_out
+
+# switch:
+#   - platform: gpio
+#     pin: 14
+#     id: toen
+#     inverted: yes
+#     restore_mode: ALWAYS_ON
+#  - platform: gpio
+#    pin: 2
+#    id: led
+#    inverted: yes
+#    restore_mode: ALWAYS_ON
+
+binary_sensor:
+  - platform: gpio
+    pin: 
+      number: GPIO0
+      mode:
+        input: true
+        pullup: true
+    name: "MeButton"
+    id: io0
+    internal: true
 
 wifi:
   fast_connect: true
-  ssid: "ssid"
+  ssid: "wifi"
   password: "pwd"
   # use static address to save dhcp time
   manual_ip:
@@ -49,7 +98,8 @@ logger:
 #   password: "sparkle"
 
 ota:
-  password: "sparkle"
+  - platform: esphome
+    password: "sparkle"
   
 web_server:
   port: 80
@@ -72,5 +122,6 @@ mqtt:
 sensor:
   - platform: adc
     pin: VCC
+    id: bat_voltage
     name: "Doorbell Battery"
     
